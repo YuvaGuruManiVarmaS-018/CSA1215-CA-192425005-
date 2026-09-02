@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EdgeCore — Computer Architecture Interactive Lab</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo">EDGE<span>CORE</span></div>
+    <div class="live"><i></i> SIMULATION ONLINE</div>
+    <nav>
+      <button class="nav-item active" data-view="dashboard">⌂ <span>System Dashboard</span></button>
+      <button class="nav-item" data-view="booth">× <span>Booth Multiplier</span></button>
+      <button class="nav-item" data-view="division">÷ <span>Restoring Division</span></button>
+      <button class="nav-item" data-view="fp">◈ <span>IEEE-754 Unit</span></button>
+      <button class="nav-item" data-view="pipeline">▶ <span>Pipeline Lab</span></button>
+      <button class="nav-item" data-view="cache">▦ <span>Cache Simulator</span></button>
+      <button class="nav-item" data-view="dma">⇄ <span>DMA / ADC</span></button>
+    </nav>
+    <div class="side-bottom">
+      <small>CSA1215 · COMPUTER ARCHITECTURE</small>
+      <small>Interactive reference model</small>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <div><span class="crumb">LAB /</span> <b id="viewTitle">System Dashboard</b></div>
+      <div class="clock" id="clock"></div>
+    </header>
+
+    <section id="dashboard" class="view active">
+      <div class="dash-hero">
+        <div>
+          <span class="eyebrow">LOW-POWER IOT EDGE SENSOR NODE</span>
+          <h1>Architecture you can<br><em>interact with.</em></h1>
+          <p>Explore the arithmetic datapath, pipeline hazards, cache behavior and DMA transfer strategy from the submitted Computer Architecture design.</p>
+        </div>
+        <div class="node-orbit">
+          <div class="orbit o1"></div><div class="orbit o2"></div>
+          <div class="core">CPU<br><small>EDGE NODE</small></div>
+          <div class="sat s1">ADC</div><div class="sat s2">RAM</div><div class="sat s3">DMA</div>
+        </div>
+      </div>
+      <div class="live-grid">
+        <div class="metric"><span>ARITHMETIC</span><strong>8-bit</strong><small>signed datapath</small></div>
+        <div class="metric"><span>PIPELINE</span><strong id="dashCycles">10</strong><small>cycles with forwarding</small></div>
+        <div class="metric"><span>CACHE AMAT</span><strong>7.00</strong><small>cycles · 2-way</small></div>
+        <div class="metric"><span>I/O MODE</span><strong>DMA</strong><small>block transfer</small></div>
+      </div>
+      <div class="section-title"><span>LIVE ARCHITECTURE</span><h2>Click a component to inspect it</h2></div>
+      <div class="system-map">
+        <button data-go="dma" class="map-node">ADC<small>sample stream</small></button><b>→</b>
+        <button data-go="dma" class="map-node hot">DMA<small>block transfer</small></button><b>→</b>
+        <button data-go="cache" class="map-node">CACHE<small>2-way / 4 sets</small></button><b>→</b>
+        <button data-go="pipeline" class="map-node">CPU PIPELINE<small>IF · ID · EX · MEM · WB</small></button>
+      </div>
+      <div class="activity">
+        <div class="activity-head"><span>SIMULATION LOG</span><button id="clearLog">CLEAR</button></div>
+        <div id="log"></div>
+      </div>
+    </section>
+
+    <section id="booth" class="view">
+      <div class="lab-head"><span>ARITHMETIC UNIT / 01</span><h1>Booth Multiplier</h1><p>Run the signed iterative multiplier and watch every register transition.</p></div>
+      <div class="controls"><label>Multiplicand <input id="boothM" type="number" value="13" min="-128" max="127"></label><label>Multiplier <input id="boothQ" type="number" value="-6" min="-128" max="127"></label><button id="runBooth" class="primary">RUN × 8 STEPS</button></div>
+      <div class="booth-layout">
+        <div class="register-panel"><div class="reg"><span>A</span><strong id="regA">00000000</strong></div><div class="reg"><span>Q</span><strong id="regQ">11111010</strong></div><div class="reg"><span>Q−1</span><strong id="regQm1">0</strong></div><div class="reg result"><span>PRODUCT</span><strong id="boothResult">−78</strong></div></div>
+        <div><div class="stepbar"><span>STEP <b id="boothStep">0</b> / 8</span><button id="boothNext">NEXT STEP →</button><button id="boothAuto">AUTO PLAY</button></div><div id="boothTrack" class="trace-list"></div></div>
+      </div>
+    </section>
+
+    <section id="division" class="view">
+      <div class="lab-head"><span>ARITHMETIC UNIT / 02</span><h1>Restoring Division</h1><p>Visualize partial remainder restoration during signed division.</p></div>
+      <div class="controls"><label>Dividend <input id="divN" type="number" value="-78"></label><label>Divisor <input id="divD" type="number" value="6"></label><button id="runDiv" class="primary">RUN DIVISION</button></div>
+      <div class="division-board"><div class="quotient"><span>QUOTIENT</span><strong id="divResult">−13</strong></div><div class="remainder"><span>REMAINDER</span><strong id="remResult">0</strong></div><div class="div-status" id="divStatus">READY · divisor ≠ 0</div></div>
+      <div class="process" id="divProcess"></div>
+    </section>
+
+    <section id="fp" class="view">
+      <div class="lab-head"><span>FLOATING POINT UNIT / 03</span><h1>IEEE-754 Playground</h1><p>Test normal addition, subtraction and the overflow case used in the assignment.</p></div>
+      <div class="fp-controls"><label>X <input id="fpX" type="number" value="12.5" step="0.25"></label><select id="fpOp"><option>+</option><option>−</option></select><label>Y <input id="fpY" type="number" value="-3.25" step="0.25"></label><button id="runFP" class="primary">CALCULATE</button></div>
+      <div class="fp-output"><div><span>RESULT</span><strong id="fpResult">9.25</strong></div><div><span>HEX</span><strong id="fpHex">0x41140000</strong></div><div><span>STATUS</span><strong id="fpStatus">EXACT</strong></div></div>
+      <div class="float-bits"><div class="sign">SIGN <b id="fpSign">0</b></div><div class="exp">EXPONENT <b id="fpExp">10000010</b></div><div class="frac">FRACTION <b id="fpFrac">00101000000000000000000</b></div></div>
+    </section>
+
+    <section id="pipeline" class="view">
+      <div class="lab-head"><span>PROCESSOR / 04</span><h1>Pipeline Lab</h1><p>Toggle forwarding and watch hazards change the schedule.</p></div>
+      <div class="toggle-row"><button id="forwardToggle" class="toggle on">FORWARDING <i></i></button><button id="branchToggle" class="toggle">BRANCH PREDICTION <i></i></button><button id="runPipe" class="primary">RUN PIPELINE</button></div>
+      <div class="pipe-stats"><div><span>CYCLES</span><strong id="pipeCycles">10</strong></div><div><span>STALLS</span><strong id="pipeStalls">1</strong></div><div><span>IMPROVEMENT</span><strong id="pipeImprove">23.1%</strong></div></div>
+      <div class="timeline-wrap"><div class="timeline" id="timeline"></div></div>
+      <div class="hazard-grid"><div><b>RAW · I1 → I2</b><p>Load-use dependency. One stall remains even with forwarding.</p></div><div><b>RAW · I2 → I3</b><p>EX-to-EX forwarding removes the stall.</p></div><div><b>CONTROL · I5</b><p>Predict not-taken; taken branch causes a two-cycle flush.</p></div></div>
+    </section>
+
+    <section id="cache" class="view">
+      <div class="lab-head"><span>MEMORY HIERARCHY / 05</span><h1>Cache Simulator</h1><p>Change the trace and compare direct-mapped and 2-way organizations.</p></div>
+      <div class="cache-controls"><input id="traceInput" value="0,4,8,0,4,8,1,5,9,1,5,9,2,6,10,2,6,10"><button id="runCache" class="primary">TRACE ACCESS</button></div>
+      <div class="cache-results"><div class="cache-sim"><h3>DIRECT-MAPPED</h3><div id="dmGrid" class="cache-grid"></div><div class="cache-numbers"><span>HITS <b id="dmHits">0</b></span><span>MISSES <b id="dmMiss">18</b></span><span>AMAT <b id="dmAmat">13.00</b></span></div></div><div class="cache-sim selected"><h3>2-WAY SET-ASSOCIATIVE</h3><div id="twGrid" class="cache-grid"></div><div class="cache-numbers"><span>HITS <b id="twHits">9</b></span><span>MISSES <b id="twMiss">9</b></span><span>AMAT <b id="twAmat">7.00</b></span></div></div></div>
+    </section>
+
+    <section id="dma" class="view">
+      <div class="lab-head"><span>I/O SUBSYSTEM / 06</span><h1>ADC → DMA → CPU</h1><p>Start a stream and watch samples move into the circular buffer without waking the CPU for every sample.</p></div>
+      <div class="dma-controls"><label>Block size <input id="blockSize" type="number" value="8" min="2" max="32"></label><button id="startDma" class="primary">START STREAM</button><button id="stopDma">STOP</button></div>
+      <div class="dma-stage"><div class="dma-box active" id="adcBox"><b>ADC</b><small>sampling</small><strong id="adcValue">—</strong></div><div class="flowline"><i></i></div><div class="dma-box" id="dmaBox"><b>DMA</b><small>transferring</small><strong id="dmaCount">0 / 8</strong></div><div class="flowline"><i></i></div><div class="buffer"><div class="buffer-top"><b>CIRCULAR BUFFER</b><span id="bufferPct">0%</span></div><div id="bufferCells"></div></div><div class="flowline"><i></i></div><div class="dma-box" id="cpuBox"><b>CPU</b><small>sleep / process</small><strong id="cpuState">SLEEP</strong></div></div>
+      <div class="dma-note"><b>WHY DMA?</b><span>Fewer wake-ups · lower active time · predictable block service</span></div>
+    </section>
+  </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
